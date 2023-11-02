@@ -30,7 +30,9 @@ RUN \
     libqrencode \
     net-tools \
     openresolv \
-    perl && \
+    perl \
+    apache2-utils \
+    iperf3 && \
   echo "wireguard" >> /etc/modules && \
   echo "**** install wireguard-tools ****" && \
   if [ -z ${WIREGUARD_RELEASE+x} ]; then \
