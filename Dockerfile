@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/linuxserver/baseimage-alpine:3.18
+FROM ghcr.io/linuxserver/baseimage-alpine:3.19
 
 # set version label
 ARG BUILD_DATE
@@ -14,26 +14,33 @@ RUN \
   apk add --no-cache --virtual=build-dependencies \
     build-base \
     elfutils-dev \
-    gcc \
     git \
     linux-headers && \
   apk add --no-cache \
     bc \
     coredns \
-    gnupg \
     grep \
     iproute2 \
     iptables \
+    iptables-legacy \
     ip6tables \
     iputils \
     libcap-utils \
-    libqrencode \
+    libqrencode-tools \
     net-tools \
     openresolv \
     perl \
     apache2-utils \
-    iperf3 && \
+    iperf3 \
+    openresolv && \
   echo "wireguard" >> /etc/modules && \
+  cd /sbin && \
+  for i in ! !-save !-restore; do \
+    rm -rf iptables$(echo "${i}" | cut -c2-) && \
+    rm -rf ip6tables$(echo "${i}" | cut -c2-) && \
+    ln -s iptables-legacy$(echo "${i}" | cut -c2-) iptables$(echo "${i}" | cut -c2-) && \
+    ln -s ip6tables-legacy$(echo "${i}" | cut -c2-) ip6tables$(echo "${i}" | cut -c2-); \
+  done && \
   echo "**** install wireguard-tools ****" && \
   if [ -z ${WIREGUARD_RELEASE+x} ]; then \
     WIREGUARD_RELEASE=$(curl -sX GET "https://api.github.com/repos/WireGuard/wireguard-tools/tags" \
